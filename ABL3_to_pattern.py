@@ -78,11 +78,68 @@ def convert_ABL3_short(filename):
     return pat
 
 
+def load_ABL3_long(filename):
+    """
+    Load ABL3 pattern with columns: 'note', 'down', 'up', 'accent', 'slide', 'gate'
+    """
+    with open(filename) as file:
+        n_skip = sum([';' in line.rstrip('\n') for line in file])
+        
+    pat = pd.read_csv(filename, sep=' ', index_col=False, skiprows=n_skip, names=['note', 'down', 'up', 'accent', 'slide', 'gate'])
+    pat.index += 1
+    pat.index.name = 'step'
+
+    return pat
+
+
+def convert_ABL3_long(filename):
+    """
+    Convert an ABL3 pattern with columns 'note', 'down', 'up', 'accent', 'slide', 'gate'
+    into common pattern representation.
+    """
+
+    pat = load_ABL3_long(filename)
+
+    pat.loc[pat['note'] < 0, 'note'] += 12
+    pat.loc[pat['note'] == 12, 'up'] += 1
+    pat.loc[pat['note'] == 12, 'note'] = 0
+    pat = pat[['note', 'up', 'down', 'gate', 'slide', 'accent']]
+
+    return pat
+
+
+def convert_ABL3(filename, out_filepath):
+
+    if is_short_ABL3(filename):
+        pat = convert_ABL3_short(filename)
+    else:
+        pat = convert_ABL3_long(filename)
+
+    pat.to_csv(out_filepath)
+
+
+def convert_all_ABL3(in_path, out_path):
+    """
+    Convert all midi files in a folder to 303 style patterns in csv.
+    Files are searched for recursively.
+    """
+    if not os.path.exists(out_path):
+        Path(out_path).mkdir(parents=True, exist_ok=True)
+
+    for i, file in enumerate(sorted(Path(in_path).rglob('*.pat'))):
+        print('converting midi file:', file)
+
+        skip = False
+        with open(file) as file_:
+            for line in file_:
+                if 'xml' in line:
+                    skip = True
+        if skip:
+            continue
+        
+        convert_ABL3(file, out_path + str(i) + '.csv')
 
 
 if __name__ == '__main__':
-    filename = '../data/raw/ABL3_patterns/Acid/AcidBassline6.pat'
-    
-    if is_short_ABL3(filename):
-        pat = convert_ABL3_short(filename)
-        print(pat)
+
+    convert_all_ABL3('../data/raw/ABL3', '../data/processed/ABL3/')

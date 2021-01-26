@@ -201,10 +201,14 @@ def convert_all_midi(in_path, out_path):
     Convert all midi files in a folder to 303 style patterns in csv.
     Files are searched for recursively.
     """
+
+    if not os.path.exists(out_path):
+        Path(out_path).mkdir(parents=True, exist_ok=True)
+
     for i, file in enumerate(sorted(Path(in_path).rglob('*.mid'))):
         print('converting midi file:', file)
         convert_midi_file(file, out_path + str(i) + '.csv')
 
 
 if __name__ == "__main__":
-    convert_all_midi('./data/raw/midi', './data/processed/')
+    convert_all_midi('../data/raw/midi', '../data/processed/midi/')
