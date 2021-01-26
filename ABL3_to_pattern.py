@@ -14,6 +14,19 @@ import pandas as pd
 from common import note_value_to_char
 
 
+def is_short_ABL3(filename):
+    with open(filename) as file:
+        for line in file:
+            if ';' not in line.rstrip('\n'):
+                n_cols = len(line.split(' '))
+                break
+    
+    if n_cols == 4:
+        return True
+    else:
+        return False
+
+
 def load_ABL3_short(filename):
     """
     Load ABL3 pattern with columns: 'note', 'gate', 'slide', 'accent'
@@ -26,7 +39,6 @@ def load_ABL3_short(filename):
     pat.index.name = 'step'
 
     return pat
-
 
 
 def convert_abl3_note_to_char(note):
@@ -43,11 +55,13 @@ def convert_abl3_note_to_char(note):
         return values[values.index(note[0].upper()) + 1]
                       
 
-def convert_ABL3_short(pat):
+def convert_ABL3_short(filename):
     """
     Convert an ABL3 pattern with columns 'note', 'gate', 'slide', 'accent'
     into common pattern representation.
     """
+
+    pat = load_ABL3_short(filename)
 
     note = pat.note.map(lambda x: x[0:2])
     octave = pat.note.map(lambda x: x[2]).astype(int)
@@ -68,6 +82,7 @@ def convert_ABL3_short(pat):
 
 if __name__ == '__main__':
     filename = '../data/raw/ABL3_patterns/Acid/AcidBassline6.pat'
-    pat = load_ABL3_short(filename)
-    pat = convert_ABL3_short(pat)
-    print(pat)
+    
+    if is_short_ABL3(filename):
+        pat = convert_ABL3_short(filename)
+        print(pat)
