@@ -7,6 +7,8 @@
 
 from pathlib import Path
 import os
+from shutil import copyfile
+import math
 
 import numpy as np
 import pandas as pd
@@ -100,9 +102,17 @@ def convert_ABL3_long(filename):
 
     pat = load_ABL3_long(filename)
 
-    pat.loc[pat['note'] < 0, 'note'] += 12
-    pat.loc[pat['note'] == 12, 'up'] += 1
-    pat.loc[pat['note'] == 12, 'note'] = 0
+    for i, row in pat.iterrows():
+        if row.note < 0:
+            n_oct = math.ceil(abs(row.note) / 12)
+            row.note += 12*n_oct
+            row.down += n_oct
+        elif row.note >= 12:
+            n_oct = math.floor(abs(row.note) / 12)
+            row.note -= 12*n_oct
+            row.up += 1
+
+    pat['note'] = pat['note'].map(lambda x: note_value_to_char[x])    
     pat = pat[['note', 'up', 'down', 'gate', 'slide', 'accent']]
 
     return pat
@@ -127,7 +137,7 @@ def convert_all_ABL3(in_path, out_path):
         Path(out_path).mkdir(parents=True, exist_ok=True)
 
     for i, file in enumerate(sorted(Path(in_path).rglob('*.pat'))):
-        print('converting midi file:', file)
+        print('converting pattern file:', file)
 
         skip = False
         with open(file) as file_:
@@ -140,6 +150,27 @@ def convert_all_ABL3(in_path, out_path):
         convert_ABL3(file, out_path + str(i) + '.csv')
 
 
+def copy_all_long_ABL3(in_path, out_path):
+
+    if not os.path.exists(out_path):
+        Path(out_path).mkdir(parents=True, exist_ok=True)
+
+    for i, file in enumerate(sorted(Path(in_path).rglob('*.pat'))):
+        print('copying pattern file:', file)
+
+        skip = False
+        with open(file) as file_:
+            for line in file_:
+                if 'xml' in line:
+                    skip = True
+        if skip:
+            continue
+        
+        if not is_short_ABL3(file):
+            copyfile(file, os.path.join(out_path, str(i) + '.pat'))
+
+
 if __name__ == '__main__':
 
     convert_all_ABL3('../data/raw/ABL3', '../data/processed/ABL3/')
+    #copy_all_long_ABL3('../data/raw/ABL3', '../data/raw/ABL3_long/')
