@@ -19,13 +19,13 @@ def load_pattern(filepath):
     return pat
 
 def tokenize_pattern(pat):
-    seperators = ['!', '#', '$', '&', '%', '=']
+    seperators = ['!', '$', '#', '&', '%', '=']
     s = ''
 
     for i, row in pat.iterrows():
         for sep, col in zip(seperators, pat.columns[1:]):
-
             s += str(row[col]) + sep
+
         s += '\n'
 
     return  s
@@ -49,5 +49,5 @@ def dump_patterns(in_path, out_filename):
 
 
 if __name__ == "__main__":
-    dump_patterns('../data/processed/', '../data/input_patterns.txt')
+    dump_patterns('../data/processed/', '../Aicd/input_patterns.txt')
     filepath = '../data/processed/midi/1.csv'
