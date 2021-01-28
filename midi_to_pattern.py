@@ -14,18 +14,18 @@ import mido
 import numpy as np
 import pandas as pd
 
-from common import note_value_to_char
+from common import (
+    note_value_to_char,
+    note_default,
+    gate_default,
+    accent_default,
+    tie_default,
+    slide_default
+)
 
 
 beats = 16
 time_per_beat = 24
-
-note_default = -1
-gate_default = 0
-accent_default = 0
-tie_default = 0
-slide_default = 0
-
 
 
 def get_empty_pattern_df(n_steps):
