@@ -61,7 +61,7 @@ def process_phoscyon_pattern(phos):
             note -= 12*n_oct
             up += 1
 
-        pat.loc[i+1, 'note'] = note
+        pat.loc[i+1, 'note'] = note_value_to_char[note]
         pat.loc[i+1, 'down'] = int(down)
         pat.loc[i+1, 'up']   = int(up)
 
@@ -69,7 +69,8 @@ def process_phoscyon_pattern(phos):
         pat.loc[i+1, 'slide']  = int(step.attrib['slide'])
         pat.loc[i+1, 'accent'] = int(step.attrib['accent'])
 
-    pat = pat.astype(int)
+    pat['down'] = pat['down'].astype(int)
+    pat['up'] = pat['up'].astype(int)
     pat = pat[['note', 'up', 'down', 'gate', 'slide', 'accent']]
     
     return pat
