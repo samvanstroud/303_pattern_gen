@@ -97,7 +97,7 @@ def midi_to_pattern(midi, n_beats=16, debug=False):
                         df.loc[int(on_beat) - i, 'note'] = df.loc[int(on_beat) - rest_len, 'note']
                     
                     # check that gate is closed for all rest steps
-                    assert(df.loc[int(on_beat) - i, 'gate'] == 0)
+                    #assert(df.loc[int(on_beat) - i, 'gate'] == 0)
 
         # finish a note
         elif msg.type == 'note_off':
@@ -206,7 +206,7 @@ def convert_all_midi(in_path, out_path):
         Path(out_path).mkdir(parents=True, exist_ok=True)
 
     for i, file in enumerate(sorted(Path(in_path).rglob('*.mid'))):
-        print('converting midi file:', file)
+        print('converting midi file', i, 'at', file)
         convert_midi_file(file, out_path + str(i) + '.csv')
 
 
